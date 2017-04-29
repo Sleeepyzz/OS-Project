@@ -1,0 +1,25 @@
+ Starting initialization of _____
+ Terminal Initialized
+ Global Descriptor Table Initialized
+ Remapping PIC Table
+ Interrupts enabled
+ Programable Interval Timer installed
+ DONE
+   Capital  Letters now work !!!ß
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

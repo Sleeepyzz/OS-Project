@@ -1,0 +1,21 @@
+display_library: x, options="gui_debug" # use GTK debugger gui
+
+ata0-slave: type=cdrom, path=myos.iso, status=inserted
+boot: cdrom
+
+cpu: count=1, ips=50000000, reset_on_triple_fault=0
+
+log: bochsout.txt
+
+panic: action=ask
+error: action=report
+info: action=report
+debug: action=ignore
+
+
+keyboard: type=mf, serial_delay=200, paste_delay=1000000
+
+debugger_log: - debug.txt
+
+# MAGIC_BREAK:
+magic_break: enabled=1
