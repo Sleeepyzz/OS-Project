@@ -1,110 +1,399 @@
-#include <stdio.h>
 #include <stdint.h>
 #include <kernel/irq.h>
 #include <kernel/keyboard.h>
 #include <kernel/port.h>
+#include <kernel/pit.h>
 
-struct regs
+char* readStr()
 {
-	unsigned int gs, fs, es, ds;
-	unsigned int edi, esi, ebp, ebx, edx, ecx, eax;
-	unsigned int int_no, err_code;
-	unsigned int eip, cs, eflags, useresp, ss; 
-};
-
-int shift_on = 0;
-int caps_lock = 0;
-int alt = 0;
-int control_on = 0;
-
-const uint8_t lower_ascii_codes[256] = {
-    0x00,  27,  '1',  '2',     /* 0x00 */
-     '3',  '4',  '5',  '6',     /* 0x04 */
-     '7',  '8',  '9',  '0',     /* 0x08 */
-     '-',  '=',  '\b', '\t',     /* 0x0C */
-     'q',  'w',  'e',  'r',     /* 0x10 */
-     't',  'y',  'u',  'i',     /* 0x14 */
-     'o',  'p',  '[',  ']',     /* 0x18 */
-    '\n', 0x00,  'a',  's',     /* 0x1C */
-     'd',  'f',  'g',  'h',     /* 0x20 */
-     'j',  'k',  'l',  ';',     /* 0x24 */
-    '\'',  '`', 0x00, '\\',     /* 0x28 */
-     'z',  'x',  'c',  'v',     /* 0x2C */
-     'b',  'n',  'm',  ',',     /* 0x30 */
-     '.',  '/', 0x00,  '*',     /* 0x34 */
-    0x00,  ' ', 0x00, 0x00,     /* 0x38 */
-    0x00, 0x00, 0x00, 0x00,     /* 0x3C */
-    0x00, 0x00, 0x00, 0x00,     /* 0x40 */
-    0x00, 0x00, 0x00,  '7',     /* 0x44 */
-     '8',  '9',  '-',  '4',     /* 0x48 */
-     '5',  '6',  '+',  '1',     /* 0x4C */
-     '2',  '3',  '0',  '.',     /* 0x50 */
-    0x00, 0x00, 0x00, 0x00,     /* 0x54 */
-    0x00, 0x00, 0x00, 0x00      /* 0x58 */
-};
-
-// Scancode -> ASCII
-const uint8_t upper_ascii_codes[256] = {
-    0x00,  27,  '!',  '@',     /* 0x00 */
-     '#',  '$',  '%',  '^',     /* 0x04 */
-     '&',  '*',  '(',  ')',     /* 0x08 */
-     '_',  '+',   '\b', '\t',     /* 0x0C */
-     'Q',  'W',  'E',  'R',     /* 0x10 */
-     'T',  'Y',  'U',  'I',     /* 0x14 */
-     'O',  'P',  '{',  '}',     /* 0x18 */
-    '\n', 0x00,  'A',  'S',     /* 0x1C */
-     'D',  'F',  'G',  'H',     /* 0x20 */
-     'J',  'K',  'L',  ':',     /* 0x24 */
-     '"',  '~', 0x00,  '|',     /* 0x28 */
-     'Z',  'X',  'C',  'V',     /* 0x2C */
-     'B',  'N',  'M',  '<',     /* 0x30 */
-     '>',  '?', 0x00,  '*',     /* 0x34 */
-    0x00,  ' ', 0x00, 0x00,     /* 0x38 */
-    0x00, 0x00, 0x00, 0x00,     /* 0x3C */
-    0x00, 0x00, 0x00, 0x00,     /* 0x40 */
-    0x00, 0x00, 0x00,  '7',     /* 0x44 */
-     '8',  '9',  '-',  '4',     /* 0x48 */
-     '5',  '6',  '+',  '1',     /* 0x4C */
-     '2',  '3',  '0',  '.',     /* 0x50 */
-    0x00, 0x00, 0x00, 0x00,     /* 0x54 */
-    0x00, 0x00, 0x00, 0x00      /* 0x58 */
-};
-
-void keyboard_handler(struct regs *r) {
-	uint8_t scancode;
-
-    	/* Read from the keyboard's data buffer */
-    	scancode = inb(0x60);
-
-    	if (scancode & 0x80)
-    	{
-        	if (scancode == 0xAA || scancode == 0xB6) {
-			shift_on = 0;
-		}
-    	}
-    	else
-    	{
-		if (scancode == 0x36 || scancode == 0x2A) {
-			shift_on = 1;
-		}
-		if (scancode == 0x3A) {
-			if (caps_lock == 1) {
-				caps_lock = 0;
-			}
-			else {
-				caps_lock = 1;
-			}
-		}
+    char buff;
+    char* buffstr;
+    uint8_t i = 0;
+    uint8_t reading = 1;
+    uint8_t shift_on = 0;
+    uint8_t caps_lock = 0;
+    for (int n = 0; n < strlen(buffstr); n++) {
+	buffstr[n] = 0;
+    }
+    while(reading)
+    {
+        if(inb(0x64) & 0x1)                 
+        {
+            switch(inb(0x60))
+            { 
+      /*case 1:
+                putchar('(char)27);           Escape button
+                buffstr[i] = (char)27;
+                i++;
+                break;*/
+        case 2:
 		if (shift_on == 1 || caps_lock == 1) {
-			putchar(upper_ascii_codes[scancode]);
+			putchar('!');
+			buffstr[i] = '!';
 		}
 		else {
-			putchar(lower_ascii_codes[scancode]);
+                	putchar('1');
+                	buffstr[i] = '1';
 		}
-    	}
-	outb(0x20, 0x20);
+                i++;
+                break;
+        case 3:
+                if (shift_on == 1 || caps_lock == 1) {
+			putchar('@');
+			buffstr[i] = '@';
+		}
+		else {
+                	putchar('2');
+                	buffstr[i] = '2';
+		}
+                i++;
+                break;
+        case 4:
+                if (shift_on == 1 || caps_lock == 1) {
+			putchar('#');
+			buffstr[i] = '#';
+		}
+		else {
+                	putchar('3');
+                	buffstr[i] = '3';
+		}
+                i++;
+                break;
+        case 5:
+                if (shift_on == 1 || caps_lock == 1) {
+			putchar('$');
+			buffstr[i] = '$';
+		}
+		else {
+                	putchar('4');
+                	buffstr[i] = '4';
+		}
+                i++;
+                break;
+        case 6:
+                if (shift_on == 1 || caps_lock == 1) {
+			putchar('%');
+			buffstr[i] = '%';
+		}
+		else {
+                	putchar('5');
+                	buffstr[i] = '5';
+		}
+                i++;
+                break;
+        case 7:
+                if (shift_on == 1 || caps_lock == 1) {
+			putchar('^');
+			buffstr[i] = '^';
+		}
+		else {
+                	putchar('6');
+                	buffstr[i] = '6';
+		}
+                i++;
+                break;
+        case 8:
+                if (shift_on == 1 || caps_lock == 1) {
+			putchar('&');
+			buffstr[i] = '&';
+		}
+		else {
+                	putchar('7');
+                	buffstr[i] = '7';
+		}
+                i++;
+                break;
+        case 9:
+                if (shift_on == 1 || caps_lock == 1) {
+			putchar('*');
+			buffstr[i] = '*';
+		}
+		else {
+                	putchar('8');
+                	buffstr[i] = '8';
+		}
+                i++;
+                break;
+        case 10:
+                if (shift_on == 1 || caps_lock == 1) {
+			putchar('(');
+			buffstr[i] = '(';
+		}
+		else {
+                	putchar('9');
+                	buffstr[i] = '9';
+		}
+                i++;
+                break;
+        case 11:
+                if (shift_on == 1 || caps_lock == 1) {
+			putchar(')');
+			buffstr[i] = ')';
+		}
+		else {
+                	putchar('0');
+                	buffstr[i] = '0';
+		}
+                i++;
+                break;
+        case 12:
+                if (shift_on == 1 || caps_lock == 1) {
+			putchar('_');
+			buffstr[i] = '_';
+		}
+		else {
+                	putchar('-');
+                	buffstr[i] = '-';
+		}
+                i++;
+                break;
+        case 13:
+                if (shift_on == 1 || caps_lock == 1) {
+			putchar('+');
+			buffstr[i] = '+';
+		}
+		else {
+                	putchar('=');
+                	buffstr[i] = '=';
+		}
+                i++;
+                break;
+        case 14:
+                putchar('\b');
+                i--;
+                buffstr[i] = 0;
+                break;
+       /* case 15:
+                putchar('\t');          Tab button
+                buffstr[i] = '\t';
+                i++;
+                break;*/
+        case 16:
+                putchar('q');
+                buffstr[i] = 'q';
+                i++;
+                break;
+        case 17:
+                putchar('w');
+                buffstr[i] = 'w';
+                i++;
+                break;
+        case 18:
+                putchar('e');
+                buffstr[i] = 'e';
+                i++;
+                break;
+        case 19:
+                putchar('r');
+                buffstr[i] = 'r';
+                i++;
+                break;
+        case 20:
+                putchar('t');
+                buffstr[i] = 't';
+                i++;
+                break;
+        case 21:
+                putchar('y');
+                buffstr[i] = 'y';
+                i++;
+                break;
+        case 22:
+                putchar('u');
+                buffstr[i] = 'u';
+                i++;
+                break;
+        case 23:
+                putchar('i');
+                buffstr[i] = 'i';
+                i++;
+                break;
+        case 24:
+                putchar('o');
+                buffstr[i] = 'o';
+                i++;
+                break;
+        case 25:
+                putchar('p');
+                buffstr[i] = 'p';
+                i++;
+                break;
+        case 26:
+                putchar('[');
+                buffstr[i] = '[';
+                i++;
+                break;
+        case 27:
+                putchar(']');
+                buffstr[i] = ']';
+                i++;
+                break;
+        case 28:
+               // putchar('\n');
+               // buffstr[i] = '\n';
+                  i++;
+               reading = 0;
+                break;
+      /*  case 29:
+                putchar('q');           Left Control
+                buffstr[i] = 'q';
+                i++;
+                break;*/
+        case 30:
+                putchar('a');
+                buffstr[i] = 'a';
+                i++;
+                break;
+        case 31:
+                putchar('s');
+                buffstr[i] = 's';
+                i++;
+                break;
+        case 32:
+                putchar('d');
+                buffstr[i] = 'd';
+                i++;
+                break;
+        case 33:
+                putchar('f');
+                buffstr[i] = 'f';
+                i++;
+                break;
+        case 34:
+                putchar('g');
+                buffstr[i] = 'g';
+                i++;
+                break;
+        case 35:
+                putchar('h');
+                buffstr[i] = 'h';
+                i++;
+                break;
+        case 36:
+                putchar('j');
+                buffstr[i] = 'j';
+                i++;
+                break;
+        case 37:
+                putchar('k');
+                buffstr[i] = 'k';
+                i++;
+                break;
+        case 38:
+                putchar('l');
+                buffstr[i] = 'l';
+                i++;
+                break;
+        case 39:
+                putchar(';');
+                buffstr[i] = ';';
+                i++;
+                break;
+        case 40:
+                putchar((char)44);               //   Single quote (')
+                buffstr[i] = (char)44;
+                i++;
+                break;
+        case 41:
+                putchar((char)44);               // Back tick (`)
+                buffstr[i] = (char)44;
+                i++;
+                break;
+    	case 42:
+                shift_on = 1;
+                break;
+        /*case 43:
+                putchar((char)92);
+                buffstr[i] = 'q';
+                i++;
+                break;*/
+        case 44:
+                putchar('z');
+                buffstr[i] = 'z';
+                i++;
+                break;
+        case 45:
+                putchar('x');
+                buffstr[i] = 'x';
+                i++;
+                break;
+        case 46:
+                putchar('c');
+                buffstr[i] = 'c';
+                i++;
+                break;
+        case 47:
+                putchar('v');
+                buffstr[i] = 'v';
+                i++;
+                break;                
+        case 48:
+                putchar('b');
+                buffstr[i] = 'b';
+                i++;
+                break;               
+        case 49:
+                putchar('n');
+                buffstr[i] = 'n';
+                i++;
+                break;                
+        case 50:
+                putchar('m');
+                buffstr[i] = 'm';
+                i++;
+                break;               
+        case 51:
+                putchar(',');
+                buffstr[i] = ',';
+                i++;
+                break;                
+        case 52:
+                putchar('.');
+                buffstr[i] = '.';
+                i++;
+                break;            
+        case 53:
+                putchar('/');
+                buffstr[i] = '/';
+                i++;
+                break;            
+        case 54:
+                putchar('.');
+                buffstr[i] = '.';
+                i++;
+                break;            
+        case 55:
+                putchar('/');
+                buffstr[i] = '/';
+                i++;
+                break;            
+      	case 56:
+                shift_on = 1;
+                break;          
+        case 57:
+                putchar(' ');
+                buffstr[i] = ' ';
+                i++;
+                break;
+	case 0xAA:
+		shift_on = 0;
+	case 0xB6:
+		shift_on = 0;
+            }
+        }
+	buffstr[i] = ' ';
+	i++;
+	buffstr[i] = ' ';
+	i++;
+	buffstr[i] = ' ';
+	i--;
+	buffstr[i] = 0;
+	i--;
+	buffstr[i] = 0;
+    }             
+    return buffstr;
 }
 
-void keyboard_install() {
-	irq_install_handler(1, &keyboard_handler);
+void keyboard_handler(struct regs *r) {
+	outb(0x20,0x20);
 }

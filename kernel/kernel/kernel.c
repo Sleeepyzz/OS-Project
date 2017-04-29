@@ -5,6 +5,7 @@
 #include <kernel/isr.h>
 #include <kernel/timer.h>
 #include <kernel/keyboard.h>
+#include <kernel/shell.h>
 #include <stdint.h>
 
 void kernel_main(void) {
@@ -16,12 +17,9 @@ void kernel_main(void) {
 	irq_remap();
 	idt_install();
 	timer_install(100);
-	keyboard_install();
 	asm ("sti");
 	printf("Interrupts enabled\n");
 	printf("Programable Interval Timer installed\n");
-	printf("DONE\n");
-	for (;;) {
-		asm("hlt");
-	}
+	printf("Launching shell...\n");
+	shell(0);
 }

@@ -70,6 +70,9 @@ void terminal_putchar(char c) {
 	case '\n':
 		terminal_column = 0;
 		terminal_row++;
+		if (terminal_row == VGA_HEIGHT) {
+			scroll();
+		}
 		move_cursor((terminal_row * 80) + terminal_column);
 		break;
 	case '\b':
@@ -96,13 +99,18 @@ void terminal_putchar(char c) {
 				terminal_row = 0;
 			}
 		}
-		if (terminal_column >= 80) {
+		if (terminal_column == VGA_WIDTH) {
 			terminal_column = 0;
 			terminal_row++;
 		}
+		if (terminal_column == VGA_WIDTH && terminal_row == VGA_HEIGHT){
+			scroll();
+		}
 		terminal_putentryat(uc, terminal_color, terminal_column, terminal_row);
+		if (terminal_row == VGA_HEIGHT - 1) {
+			scroll();
+		}
 		unsigned short pos = (terminal_row * 80) + terminal_column;
-		scroll();
 		move_cursor(pos + 1);
 	}
 }
