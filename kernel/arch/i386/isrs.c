@@ -1,5 +1,6 @@
 #include <kernel/isr.h>
 #include <kernel/idt.h>
+#include <kernel/panic.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
@@ -53,7 +54,6 @@ char *exceptions[] =
 void isr_handler (struct regs* r) {
 	if (r->int_no < 32) {
 		puts(exceptions[r->int_no]);
-		printf("ERROR. RESTART OS");
 		asm ("hlt");
 	}
 	if (r->int_no > 31) {

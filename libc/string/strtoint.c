@@ -16,7 +16,7 @@ void int_to_ascii(int n, char str[]) {
 }
 
 char* int_to_string(int n) {
-	char* ch = malloc(50);
+	char* ch = malloc(50, 0, 0);
 	int_to_ascii(n, ch);
 	int len = strlen(ch);
 	int i = 0;

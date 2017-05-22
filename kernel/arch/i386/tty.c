@@ -12,11 +12,10 @@ static const size_t VGA_WIDTH = 80;
 static const size_t VGA_HEIGHT = 25;
 static uint16_t* const VGA_MEMORY = (uint16_t*) 0xB8000;
 
-static size_t terminal_row;
-static size_t terminal_column;
+size_t terminal_row;
+size_t terminal_column;
 static uint8_t terminal_color;
 static uint16_t* terminal_buffer;
-int attrib = 0x0F;
 
 void terminal_initialize(void) {
 	terminal_row = 0;
@@ -40,13 +39,24 @@ void terminal_putentryat(unsigned char c, uint8_t color, size_t x, size_t y) {
 	terminal_buffer[index] = vga_entry(c, color);
 }
 
+void terminal_clear() {
+	for (size_t y = 0; y < VGA_HEIGHT; y++) {
+		for (size_t x = 0; x < VGA_WIDTH; x++) {
+			const size_t index = y * VGA_WIDTH + x;
+			terminal_buffer[index] = vga_entry(' ', terminal_color);
+		}
+	}
+	terminal_row = 0;
+	terminal_column = 0;
+}
+
 void scroll(void)
 {
     unsigned blank, temp;
 
     /* A blank is defined as a space... we need to give it
     *  backcolor too */
-    blank = 0x20 | (attrib << 8);
+    blank = 0x20 | (terminal_color << 8);
 
     /* Row 25 is the end, this means we need to scroll up */
     if(terminal_row >= 25)

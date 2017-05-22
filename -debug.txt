@@ -1,5 +1,6 @@
 Next at t=0
 (0) [0x00000000fffffff0] f000:fff0 (unk. ctxt): jmp far f000:e05b         ; ea5be000f0
 c
-(0).[3915081087] [0x000000000010132d] 0008:000000000010132d (unk. ctxt): push 0x00000064           ; 6a64
-Next at t=3915081087
+Next at t=592024891
+(0) [0x0000000000101359] 0008:0000000000101359 (unk. ctxt): movzx ecx, bl             ; 0fb6cb
+(0).[592024891] [0x0000000000101359] 0008:0000000000101359 (unk. ctxt): movzx ecx, bl             ; 0fb6cb

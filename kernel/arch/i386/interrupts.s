@@ -305,31 +305,3 @@
 		popa
 		addl $8, %esp
 		iret
-
-	.global rtc_stub
-	.type rtc_stub, @function
-	rtc_stub:
-		pusha
-
-		pushw %ds
-		pushw %es
-		pushw %fs
-		pushw %gs
-
-		movw $0x10, %ax
-		movw %ax, %ds 
-		movw %ax, %es
-		movw %ax, %fs
-		movw %ax, %gs
-		movl %esp, %eax
-		pushl %eax
-		call irq_handler
-		popl %eax
-		popw %gs
-		popw %es
-		popw %fs
-		popw %gs
-		
-		popa
-		addl $8, %esp
-		iret

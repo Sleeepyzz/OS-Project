@@ -38,12 +38,11 @@ struct regs
 	unsigned int edi, esi, ebp, ebx, edx, ecx, eax;
 	unsigned int int_no, err_code;
 	unsigned int eip, cs, eflags, useresp, ss; 
-};
+}registers_t;
 
 typedef void (*isr_t)(struct regs *);
 
 isr_t irqs[16];
-isr_t number[256];
 
 void irq_remap() {
 	unsigned char a1, a2;
@@ -83,12 +82,6 @@ void irq_uninstall_handler(int irq) {
 }
 
 void irq_handler(struct regs *r) {
-
-	printf(number[r->int_no - 32]);
-	printf("\n");
-	
-	//Blank function pointer
-	void (*handler)(struct regs *r);
 
 	if (irqs[r->int_no] != 0) {
 		isr_t handler = irqs[r->int_no - 32];
