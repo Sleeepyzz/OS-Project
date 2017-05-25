@@ -1,6 +1,5 @@
 #include <kernel/isr.h>
 #include <kernel/idt.h>
-#include <kernel/panic.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>

@@ -12,15 +12,24 @@ int color();
 int set_username();
 int invalid();
 int clear();
+int add();
+int multiply();
+int divide();
+int subtract();
+
 
 //CONSTANTS
-int (*commandaddrs[6])(void) = { shell, help, settings, exit, clear, invalid };
-char* commands[] = {
+const int (*commandaddrs[10])(void) = { shell, help, settings, exit, clear, add, multiply, divide, subtract, invalid };
+const char* commands[] = {
 	"cmd",
 	"help",
 	"settings",
 	"exit",
 	"clear",
+	"add",
+	"multiply",
+	"divide",
+	"subtract",
 };
 
 //VARIABLES
@@ -36,7 +45,7 @@ int parseCommand(char* ch) {
 	int valid_command = 0;
 	int n = 0;
 	unsigned int i;
-	for (i = 0; i < strlen(ch); i++) {
+	for (i = 0; i < 10; i++) {
 		if (strEql(ch, commands[i])) {
 			valid_command = 1;
 			
@@ -68,6 +77,10 @@ int help() {
 	printf("\nexit		:Exits the current shell");
 	printf("\nsettings	:Allows you to change background and text color and username");
 	printf("\nclear		:Clears the screen of all text");
+	printf("\nadd		:Adds two numbers together");
+	printf("\nmultiply	:Multiplies two numbers together");
+	printf("\ndivide	:Divides a number by another number");
+	printf("\nsubtract	:Subtracts a number from the other");
 	printf("\n\n");
 	return 1;
 }
@@ -83,7 +96,7 @@ int clear() {
 }
 //Invalid command
 int invalid() {
-	printf("Invalid Command. Type help for a list of valid commands\n");
+	printf("\nInvalid Command. Type help for a list of valid commands\n");
 	return 1;
 }
 //Set Username
@@ -95,6 +108,49 @@ int set_username() {
 	printf("\n");
 	return 1;
 }
+int num1 = 0;
+int num2 = 0;
+void getNumbers(){
+	char* ch = (char*)malloc(200,0,0);
+	printf("\nFirst number:");
+	ch = (char*)readStr();
+	num1 = str_to_int(ch);
+	printf("\nSecond number:");
+	ch = (char*)readStr();
+	num2 = str_to_int(ch);
+	printf("\nResult:");
+}
+
+int add(){
+	getNumbers();
+	printf(int_to_string(num1 + num2));
+	printf("\n");
+	return 1;
+}
+int multiply(){
+	getNumbers();
+	printf(int_to_string(num1 * num2));
+	printf("\n");
+	return 1;
+}
+int divide(){
+	getNumbers();
+	if (num1 == 0 || num2 == 0) {
+		printf("\nDONT DIVIDE WITH ZERO\n");
+		return 1;
+	}
+	printf(int_to_string(num1 / num2));
+	printf("\n");
+	return 1;
+}
+int subtract() {
+	getNumbers();
+	printf(int_to_string(num1 - num2));
+	printf("\n");
+	return 1;
+}
+
+
 //Set background and foreground color
 int color() {
 	char* ch = (char*)malloc(200,0,0);

@@ -39,8 +39,6 @@ void timer_wait(int ticks)
 
 void timer_install(uint32_t frequency)
 {
-	/* Installs 'timer_handler' to IRQ0 */
-	irq_install_handler(0, &timer_handler);
 
 	divisor = PIT_NATURAL_FREQ / frequency;
 	

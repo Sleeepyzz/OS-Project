@@ -105,8 +105,9 @@ void init_vmm()
     set_current_directory(kernel_directory);
 
     // Map kernel + 16 MiB
-    uint32_t mem_to_map = (size_t) &kernel_end + 0x1000000;
-    map_area(0x0, mem_to_map, PAGE_READ_WRITE | PAGE_PRESENT | PAGE_USER);
+    uint32_t mem_to_map = (size_t) &kernel_end + 0xC1000000;
+    map_area(0x0, 0x400000, PAGE_READ_WRITE | PAGE_PRESENT | PAGE_USER);
+    map_area(0xC0000000, mem_to_map, PAGE_READ_WRITE | PAGE_PRESENT | PAGE_USER);
     switch_page_directory(kernel_directory);
     enable_paging();
 }

@@ -48,7 +48,7 @@ uint32_t first_frame() {
 
 uint32_t alloc_frame() {
 	uint32_t idx = first_frame();
-	if (idx != -1) {
+	if (idx != (uint32_t)-1) {
 		use_bit(frames, idx);
 		free_frames--;
 		return idx * 0x1000;
