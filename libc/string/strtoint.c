@@ -1,34 +1,35 @@
 #include <string.h>
 #include <stdint.h>
 
-//Only used in int to string and string to int
-//Not for use outside of strtoint.c
-void int_to_ascii(int n, char str[]) {          
-    int i, sign;
-    if ((sign = n) < 0) n = -n;
-    i = 0;
-    do {
-        str[i++] = n % 10 + '0';         
-    } while ((n /= 10) > 0);
+char* int_to_string(int num)
+{
+    char* str = malloc(100, 0, 0);
+    int i, rem, len = 0, n;
+    n = num;
+    while (n != 0)
 
-    if (sign < 0) str[i++] = '-';
-    str[i] = '\0';
-}
+    {
+        len++;
 
-char* int_to_string(int n) {
-	char* ch = malloc(50, 0, 0);
-	int_to_ascii(n, ch);
-	int len = strlen(ch);
-	int i = 0;
-	int j = len - 1;
-	while (i < (len/2 + len%2)) {
-		char tmp = ch[i];
-		ch[i] = ch[j];
-		ch[j] = tmp;
-		i++;
-		j++;
-	}
-	return ch;
+        n /= 10;
+
+    }
+
+    for (i = 0; i < len; i++)
+
+    {
+
+        rem = num % 10;
+
+        num = num / 10;
+
+        str[len - (i + 1)] = rem + '0';
+
+    }
+
+    str[len] = '\0';
+    return str;
+
 }
 
 int str_to_int(char* ch) {

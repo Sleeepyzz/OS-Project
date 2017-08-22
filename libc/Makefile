@@ -47,6 +47,8 @@ string/strcspn.o \
 string/strchr.o \
 string/strcpy.o \
 string/strcmp.o \
+string/isNumber.o \
+
 
 HOSTEDOBJS=\
 $(ARCH_HOSTEDOBJS) \

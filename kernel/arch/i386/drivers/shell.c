@@ -1,5 +1,3 @@
-/*Shell code written by Ryken Thompson */
-
 #include <stdio.h>
 #include <kernel/tty.h>
 #include <string.h>
@@ -13,46 +11,29 @@ int color();
 int setusername();
 int invalid();
 int clear();
-int add();
-int multiply();
-int divide();
-int subtract();
 int settings();
+int calculator();
 
 //POINTERS
-int (*commandaddrs[10])() = { shell, help, settings, exit, clear, add, multiply, divide, subtract, invalid };
+int (*commandaddrs[6])() = { shell, help, settings, exit, clear, calculator, invalid};
 
 //VARIABLES
 char* commands[] = {
-	"cmd",
+	"shell",
 	"help",
 	"settings",
 	"exit",
 	"clear",
-	"add",
-	"multiply",
-	"divide",
-	"subtract",
 };
 char* username = "Ryken Thompson";
 int shell_level = 0;
-
-char* terminal0 = malloc(sizeof(char*) * 25 * 100);
-char* terminal1 = malloc(sizeof(char*) * 25 * 100);
-char* terminal2 = malloc(sizeof(char*) * 25 * 100);
-char* terminal3 = malloc(sizeof(char*) * 25 * 100);
-char* terminal4 = malloc(sizeof(char*) * 25 * 100);
+int start = 1;
 
 
 char *previousCommands[15];
 int commands_entered = 0;
 
-//
-
-
 char *args[5][15];
-char *arg1;
-char *arg2;
 int commandNum;
 
 
@@ -74,15 +55,21 @@ void parseCommand(char* ch) {
 		i++;
    		p = strtok (NULL, " ");
     	}
-	for (int x = 0; x < 9; x++) {
-		if (strcmp(args[0], commands[x]) == 0) {
-			commandNum = x;
+	if (isNumber(args[0]) == 1) {
+		commandNum = 5;
+	}
+	else {
+		for (int x = 0; x < 4; x++) {
+			if (strcmp(args[0], commands[x]) == 0) {
+				commandNum = x;
+			}
 		}
 	}
 
 }
 
-//Executes command based on number returned from parseCommand
+/*Splits command with parseCommand then executes command based on the commandNum.
+This command can be used */
 int executeCommand(char* ch1) {
 	parseCommand(ch1);
 	int status = 1;
@@ -106,12 +93,13 @@ int help() {
 	printf("\nCommand         Arguments                 Purpose\n");
 	printf("\nshell        [number 0 - 4]        :Launches a new shell");
 	printf("\nexit                                :Exits the current shell");
-	printf("\nclear        [lineNum/all]          :Clears the screen of all text");
+	printf("\nclear        [lineNum/all]          :Clears the screen of all text or from the bottom up to a certain row");
 	printf("\nadd          [num1] [num2]          :Adds two numbers together");
 	printf("\nmultiply     [num1] [num2]          :Multiplies two numbers together");
 	printf("\ndivide       [num1] [num2]          :Divides a number by another number");
 	printf("\nsubtract     [num1] [num2]          :Subtracts a number from the other");
 	printf("\nsettings     [username/color]       :Lets you switch the username and color");
+	printf("\nYou can also  use the shell as a calculator");
 	printf("\n\n");
 	return 1;
 }
@@ -122,7 +110,18 @@ int exit() {
 }
 // Clear Screen command
 int clear() {
-	terminal_clear();
+	if (strcmp(args[1], "all") == 0) {
+		terminal_clear();
+	}
+	else {
+		if (isNumber(args[1]) == 0 || str_to_int(args[1]) >= 25) {
+			printf("\nPlease use either all or a number 0 - 24");
+			return 1;
+		}
+		for (int i = 25; i > str_to_int(args[1]); i--) {
+			clearRow(i);
+		}
+	}
 	return 1;
 }
 //Invalid command
@@ -140,70 +139,52 @@ int setusername() {
 	printf("\n");
 	return 1;
 }
-int num1 = 0;
-int num2 = 0;
 
-int add(){
-	int num1 = 0;
-	int num2 = 0;
-	if (sizeof(args) < 2) {
-		printf("ERROR. \n Please enter exactly two numbers");
-	}
-	else {
-		num1 = str_to_int(args[1]);
-		num2 = str_to_int(args[2]);
-		printf("\n");
-		printf(int_to_string(num1 + num2));
-	}
-	return 1;
-}
-int multiply(){
-	int num1 = 0;
-	int num2 = 0;
-	if (sizeof(args) < 2) {
-		printf("ERROR. \n Please enter exactly two numbers");
-	}
-	else {
-		num1 = str_to_int(args[1]);
-		num2 = str_to_int(args[2]);
-		printf("\n");
-		printf(int_to_string(num1 * num2));
-	}
-	return 1;
-}
-int divide(){
-	int num1 = 0;
-	int num2 = 0;
-	if (sizeof(args) < 2) {
-		printf("ERROR. \n Please enter exactly two numbers");
-	}
-	else {
-		if (num1 == 0 || num2 == 0) {
-			printf("\nDONT DIVIDE WITH ZERO\n");
+int calculator() {
+	printf("\n");
+	if (sizeof(args < 3)) {
+		int num1 = str_to_int(args[0]);
+		int num2 = str_to_int(args[2]);
+		if (strcmp(args[1], "+") == 0) {
+			printf(int_to_string(num1 + num2));
+		}
+		else if (strcmp(args[1], "-") == 0) {
+			if (num1 < num2) {
+				printf("-");
+				printf(int_to_string(num2 - num1));
+			}
+			else {
+				printf(int_to_string(num1 - num2));
+			}
+		}
+		else if (strcmp(args[1], "*") == 0) {
+			printf(int_to_string(num1 * num2));
+		}
+		else if (strcmp(args[1], "/") == 0) {
+			if (args[0] == 0 || args[2] == 0) {
+				printf("Don't Divide with Zero");
+				return 1;
+			}
+			printf(int_to_string(num1 / num2));
+		}
+		else if (strcmp(args[1], "^") == 0) {
+			int args0 = str_to_int(args[0]);
+			int temp = 1;
+			
+			for (int i = 0; i < str_to_int(args[2]); i++) {
+				temp = temp * args0;
+			}
+			printf(int_to_string(temp));
+		}
+		else {
+			printf("Only enter like [number1] [+, -, /, *, ^] [number2]");
 			return 1;
 		}
-		num1 = str_to_int(args[1]);
-		num2 = str_to_int(args[2]);
-		printf("\n");
-		printf(int_to_string(num1 / num2));
+		return 1;
 	}
+	printf("Only enter like [number] [+,-,/,*, ^, %] [number2]");
 	return 1;
 }
-int subtract() {
-	int num1 = 0;
-	int num2 = 0;
-	if (sizeof(args) < 2) {
-		printf("ERROR. \n Please enter exactly two numbers");
-	}
-	else {
-		num1 = str_to_int(args[1]);
-		num2 = str_to_int(args[2]);
-		printf("\n");
-		printf(int_to_string(num1 - num2));
-	}
-	return 1;
-}
-
 
 //Set background and foreground color
 int color() {
@@ -244,9 +225,6 @@ int settings() {
 //Main shell loop
 int shell() {
 	int status;
-	if (str_to_int(args[1]) > 2) {
-		printf("NOTE: Only using the first argument");
-	}
 	for (int i = 0; i == 5; i++) {
 		if (i == str_to_int(args[1])) {
 			break;
@@ -261,7 +239,14 @@ int shell() {
 		}
 		
 	}
-	shell_level = str_to_int(args[1]);
+	if (start) {
+		start = 0;
+	}
+	else {
+		terminal_clear();
+		shell_level = str_to_int(args[1]);
+	}
+	
 	do {
 		char* ch = (char*)malloc(200, 0, 0);
 		printf("\nNAME OF OS: ");

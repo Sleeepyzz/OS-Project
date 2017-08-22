@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 extern char *previousCommands[15];
 extern int commands_entered;
 
@@ -24,8 +25,9 @@ char* readStr()
     }
     while(reading)
     {
-        if(inb(0x64) & 0x1)                 
+        if(inb(0x64) & 0x1)
         {
+	    
             switch(inb(0x60))
             { 
       /*case 1:
@@ -34,7 +36,7 @@ char* readStr()
                 i++;
                 break;*/
         case 2:
-		if (shift_on == 1 || caps_lock == 1) {
+		if (shift_on == 1) {
 			putchar('!');
 			buffstr[i] = '!';
 		}
@@ -43,9 +45,10 @@ char* readStr()
                 	buffstr[i] = '1';
 		}
                 i++;
+		shift_on = 0;
                 break;
         case 3:
-                if (shift_on == 1 || caps_lock == 1) {
+                if (shift_on == 1) {
 			putchar('@');
 			buffstr[i] = '@';
 		}
@@ -54,9 +57,10 @@ char* readStr()
                 	buffstr[i] = '2';
 		}
                 i++;
+		shift_on = 0;
                 break;
         case 4:
-                if (shift_on == 1 || caps_lock == 1) {
+                if (shift_on == 1) {
 			putchar('#');
 			buffstr[i] = '#';
 		}
@@ -65,9 +69,10 @@ char* readStr()
                 	buffstr[i] = '3';
 		}
                 i++;
+		shift_on = 0;
                 break;
         case 5:
-                if (shift_on == 1 || caps_lock == 1) {
+                if (shift_on == 1) {
 			putchar('$');
 			buffstr[i] = '$';
 		}
@@ -76,9 +81,10 @@ char* readStr()
                 	buffstr[i] = '4';
 		}
                 i++;
+		shift_on = 0;
                 break;
         case 6:
-                if (shift_on == 1 || caps_lock == 1) {
+                if (shift_on == 1) {
 			putchar('%');
 			buffstr[i] = '%';
 		}
@@ -87,9 +93,10 @@ char* readStr()
                 	buffstr[i] = '5';
 		}
                 i++;
+		shift_on = 0;
                 break;
         case 7:
-                if (shift_on == 1 || caps_lock == 1) {
+                if (shift_on == 1) {
 			putchar('^');
 			buffstr[i] = '^';
 		}
@@ -98,9 +105,10 @@ char* readStr()
                 	buffstr[i] = '6';
 		}
                 i++;
+		shift_on = 0;
                 break;
         case 8:
-                if (shift_on == 1 || caps_lock == 1) {
+                if (shift_on == 1) {
 			putchar('&');
 			buffstr[i] = '&';
 		}
@@ -109,9 +117,10 @@ char* readStr()
                 	buffstr[i] = '7';
 		}
                 i++;
+		shift_on = 0;
                 break;
         case 9:
-                if (shift_on == 1 || caps_lock == 1) {
+                if (shift_on == 1) {
 			putchar('*');
 			buffstr[i] = '*';
 		}
@@ -120,9 +129,10 @@ char* readStr()
                 	buffstr[i] = '8';
 		}
                 i++;
+		shift_on = 0;
                 break;
         case 10:
-                if (shift_on == 1 || caps_lock == 1) {
+                if (shift_on == 1) {
 			putchar('(');
 			buffstr[i] = '(';
 		}
@@ -131,9 +141,10 @@ char* readStr()
                 	buffstr[i] = '9';
 		}
                 i++;
+		shift_on = 0;
                 break;
         case 11:
-                if (shift_on == 1 || caps_lock == 1) {
+                if (shift_on == 1) {
 			putchar(')');
 			buffstr[i] = ')';
 		}
@@ -142,9 +153,10 @@ char* readStr()
                 	buffstr[i] = '0';
 		}
                 i++;
+		shift_on = 0;
                 break;
         case 12:
-                if (shift_on == 1 || caps_lock == 1) {
+                if (shift_on == 1) {
 			putchar('_');
 			buffstr[i] = '_';
 		}
@@ -153,9 +165,10 @@ char* readStr()
                 	buffstr[i] = '-';
 		}
                 i++;
+		shift_on = 0;
                 break;
         case 13:
-                if (shift_on == 1 || caps_lock == 1) {
+                if (shift_on == 1) {
 			putchar('+');
 			buffstr[i] = '+';
 		}
@@ -164,11 +177,13 @@ char* readStr()
                 	buffstr[i] = '=';
 		}
                 i++;
+		shift_on = 0;
                 break;
         case 14:
                 putchar('\b');
                 i--;
-                buffstr[i] = 0;
+               	buffstr[i] = 0;
+		shift_on = 0;
                 break;
        /* case 15:
                 putchar('\t');          Tab button
@@ -179,31 +194,37 @@ char* readStr()
                 putchar('q');
                 buffstr[i] = 'q';
                 i++;
+		shift_on = 0;
                 break;
         case 17:
                 putchar('w');
                 buffstr[i] = 'w';
                 i++;
+		shift_on = 0;
                 break;
         case 18:
                 putchar('e');
                 buffstr[i] = 'e';
                 i++;
+		shift_on = 0;
                 break;
         case 19:
                 putchar('r');
                 buffstr[i] = 'r';
                 i++;
+		shift_on = 0;
                 break;
         case 20:
                 putchar('t');
                 buffstr[i] = 't';
                 i++;
+		shift_on = 0;
                 break;
         case 21:
                 putchar('y');
                 buffstr[i] = 'y';
                 i++;
+		shift_on = 0;
                 break;
         case 22:
                 putchar('u');
@@ -214,26 +235,31 @@ char* readStr()
                 putchar('i');
                 buffstr[i] = 'i';
                 i++;
+		shift_on = 0;
                 break;
         case 24:
                 putchar('o');
                 buffstr[i] = 'o';
                 i++;
+		shift_on = 0;
                 break;
         case 25:
                 putchar('p');
                 buffstr[i] = 'p';
                 i++;
+		shift_on = 0;
                 break;
         case 26:
                 putchar('[');
                 buffstr[i] = '[';
                 i++;
+		shift_on = 0;
                 break;
         case 27:
                 putchar(']');
                 buffstr[i] = ']';
                 i++;
+		shift_on = 0;
                 break;
         case 28:
                // putchar('\n');
@@ -250,61 +276,73 @@ char* readStr()
                 putchar('a');
                 buffstr[i] = 'a';
                 i++;
+		shift_on = 0;
                 break;
         case 31:
                 putchar('s');
                 buffstr[i] = 's';
                 i++;
+		shift_on = 0;
                 break;
         case 32:
                 putchar('d');
                 buffstr[i] = 'd';
                 i++;
+		shift_on = 0;
                 break;
         case 33:
                 putchar('f');
                 buffstr[i] = 'f';
                 i++;
+		shift_on = 0;
                 break;
         case 34:
                 putchar('g');
                 buffstr[i] = 'g';
                 i++;
+		shift_on = 0;
                 break;
         case 35:
                 putchar('h');
                 buffstr[i] = 'h';
                 i++;
+		shift_on = 0;
                 break;
         case 36:
                 putchar('j');
                 buffstr[i] = 'j';
                 i++;
+		shift_on = 0;
                 break;
         case 37:
                 putchar('k');
                 buffstr[i] = 'k';
                 i++;
+		shift_on = 0;
                 break;
         case 38:
                 putchar('l');
                 buffstr[i] = 'l';
                 i++;
+		shift_on = 0;
                 break;
         case 39:
                 putchar(';');
                 buffstr[i] = ';';
                 i++;
+		shift_on = 0;
                 break;
         case 40:
                 putchar((char)44);               //   Single quote (')
                 buffstr[i] = (char)44;
                 i++;
+		shift_on = 0;
                 break;
         case 41:
                 putchar((char)44);               // Back tick (`)
                 buffstr[i] = (char)44;
                 i++;
+		shift_on = 0;
                 break;
     	case 42:
                 shift_on = 1;
@@ -318,74 +356,71 @@ char* readStr()
                 putchar('z');
                 buffstr[i] = 'z';
                 i++;
+		shift_on = 0;
                 break;
         case 45:
                 putchar('x');
                 buffstr[i] = 'x';
                 i++;
+		shift_on = 0;
                 break;
         case 46:
                 putchar('c');
                 buffstr[i] = 'c';
                 i++;
+		shift_on = 0;
                 break;
         case 47:
                 putchar('v');
                 buffstr[i] = 'v';
                 i++;
+		shift_on = 0;
                 break;                
         case 48:
                 putchar('b');
                 buffstr[i] = 'b';
                 i++;
+		shift_on = 0;
                 break;               
         case 49:
                 putchar('n');
                 buffstr[i] = 'n';
                 i++;
+		shift_on = 0;
                 break;                
         case 50:
                 putchar('m');
                 buffstr[i] = 'm';
                 i++;
+		shift_on = 0;
                 break;               
         case 51:
                 putchar(',');
                 buffstr[i] = ',';
                 i++;
+		shift_on = 0;
                 break;                
         case 52:
                 putchar('.');
                 buffstr[i] = '.';
                 i++;
+		shift_on = 0;
                 break;            
         case 53:
                 putchar('/');
                 buffstr[i] = '/';
                 i++;
+		shift_on = 0;
                 break;            
         case 54:
-                putchar('.');
-                buffstr[i] = '.';
-                i++;
-                break;            
-        case 55:
-                putchar('/');
-                buffstr[i] = '/';
-                i++;
-                break;            
-      	case 56:
                 shift_on = 1;
-                break;          
+                break;                                
         case 57:
                 putchar(' ');
                 buffstr[i] = ' ';
                 i++;
+		shift_on = 0;
                 break;
-	case 0xAA:
-		shift_on = 0;
-	case 0xB6:
-		shift_on = 0;
 	//Up Arrow
 	case 0x48:
 		for (size_t u = 0; u < strlen(buffstr); u++) {
@@ -395,6 +430,7 @@ char* readStr()
 		buffstr = previousCommands[count];
 		count++;
 		thing = 1;
+		shift_on = 0;
 	//Down Arrow
 	case 0x50:
 		if (thing == 1) {
@@ -411,6 +447,7 @@ char* readStr()
 				
 			}
 		}
+		shift_on = 0;
 	    }
 	}
 

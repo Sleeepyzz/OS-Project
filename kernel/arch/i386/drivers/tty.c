@@ -50,6 +50,13 @@ void terminal_clear() {
 	terminal_column = 0;
 }
 
+void clearRow(int number) {
+	for (size_t x = 0; x < VGA_WIDTH; x++) {
+		const size_t index = number * VGA_WIDTH + x;
+		terminal_buffer[index] = vga_entry(' ', terminal_color);
+	}
+}
+
 void scroll(void)
 {
     unsigned blank, temp;
@@ -68,7 +75,6 @@ void scroll(void)
 
         /* Finally, we set the chunk of memory that occupies
         *  the last line of text to our 'blank' character */
-	memcpy(terminal0, terminal_buffer + (25 - temp) * 80, 80);
         memsetw (terminal_buffer + (25 - temp) * 80, blank, 80);
         terminal_row = 25 - 3;
     }
