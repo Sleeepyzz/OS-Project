@@ -1,3 +1,5 @@
+.extern kernel_main
+
 # Declare constants for the multiboot header.
 .set ALIGN,    1<<0             # align loaded modules on page boundaries
 .set MEMINFO,  1<<1             # provide memory map
@@ -26,10 +28,9 @@ stack_top:
 _start:
 	movl $stack_top, %esp
 
-	# Call the global constructors.
-	call _init
-
 	# Transfer control to the main kernel.
+	pushl %eax
+	pushl %ebx
 	call kernel_main
 
 	# Hang if kernel_main unexpectedly returns.

@@ -82,6 +82,7 @@ void scroll(void)
 
 void terminal_putchar(char c) {
 	unsigned char uc = c;
+	unsigned short pos;
 	switch (uc)
 	{
 	case '\n':
@@ -103,6 +104,8 @@ void terminal_putchar(char c) {
 			terminal_column--;
 			
 		}
+		pos = (terminal_row * 80) + (terminal_column);
+		move_cursor(pos + 1);
 		break;
 	case '\t':
 		printf("    ");
@@ -119,7 +122,7 @@ void terminal_putchar(char c) {
 			terminal_row++;
 		}
 		terminal_putentryat(uc, terminal_color, terminal_column, terminal_row);
-		unsigned short pos = (terminal_row * 80) + terminal_column;
+		pos = (terminal_row * 80) + terminal_column;
 		move_cursor(pos + 1);
 	}
 	scroll();

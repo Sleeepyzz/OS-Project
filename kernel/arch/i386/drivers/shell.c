@@ -3,6 +3,11 @@
 #include <string.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <kernel/keyboard.h>
+#include <kernel/multiboot.h>
+extern multiboot_info_t *mbi;
+extern uint32_t total_mem;
+
 //PROTOTYPES
 int exit();
 int help();
@@ -13,9 +18,10 @@ int invalid();
 int clear();
 int settings();
 int calculator();
+int sysInfo();
 
 //POINTERS
-int (*commandaddrs[6])() = { shell, help, settings, exit, clear, calculator, invalid};
+int (*commandaddrs[8])() = { shell, help, settings, exit, clear, sysInfo, calculator, invalid};
 
 //VARIABLES
 char* commands[] = {
@@ -24,11 +30,11 @@ char* commands[] = {
 	"settings",
 	"exit",
 	"clear",
+	"info",
 };
 char* username = "Ryken Thompson";
 int shell_level = 0;
 int start = 1;
-
 
 char *previousCommands[15];
 int commands_entered = 0;
@@ -43,7 +49,7 @@ int commandNum;
 /*Reads through list of commands and see's if input matches any of them
 increases int n until it finds a match or goes through all known commands*/
 void parseCommand(char* ch) {
-	commandNum = 9;
+	commandNum = 7;
 	char buf[100];
 	strcpy(buf, ch);	
 	char *p = strtok (buf, " ");
@@ -56,10 +62,10 @@ void parseCommand(char* ch) {
    		p = strtok (NULL, " ");
     	}
 	if (isNumber(args[0]) == 1) {
-		commandNum = 5;
+		commandNum = 6;
 	}
 	else {
-		for (int x = 0; x < 4; x++) {
+		for (int x = 0; x < 6; x++) {
 			if (strcmp(args[0], commands[x]) == 0) {
 				commandNum = x;
 			}
@@ -86,19 +92,38 @@ int executeCommand(char* ch1) {
 }
 
 
+int sysInfo() {
+	detectCpu();
+	multiboot_memory_map_t *mmap;
+     
+        printf ("\nMemory Map:\nmmap_addr = 0x%x, mmap_length = 0x%x\n",
+        (unsigned) mbi->mmap_addr, (unsigned) mbi->mmap_length);
+        for (mmap = (multiboot_memory_map_t *) mbi->mmap_addr;
+        (unsigned long) mmap < mbi->mmap_addr + mbi->mmap_length;
+        mmap = (multiboot_memory_map_t *) ((unsigned long) mmap
+        + mmap->size + sizeof (mmap->size))) {
+
+             	printf (" size = 0x%x, base_addr = 0x%x%x\b,"
+                " length_hex = 0x%x%x\b, type = 0x%x\n",
+                (unsigned) mmap->size,
+                mmap->addr,
+                mmap->len,
+                (unsigned) mmap->type);
+         	}
+	printf("\nTotal Memory: %uMiB\n", total_mem / 1024 / 1024);
+	return 1;
+}
+
 //HELP COMMAND
 
 int help() {
 	printf("\n-----------------------------Help-----------------------------\n");
 	printf("\nCommand         Arguments                 Purpose\n");
-	printf("\nshell        [number 0 - 4]        :Launches a new shell");
+	printf("\nshell        [number 0 - 4]         :Launches a new shell");
 	printf("\nexit                                :Exits the current shell");
-	printf("\nclear        [lineNum/all]          :Clears the screen of all text or from the bottom up to a certain row");
-	printf("\nadd          [num1] [num2]          :Adds two numbers together");
-	printf("\nmultiply     [num1] [num2]          :Multiplies two numbers together");
-	printf("\ndivide       [num1] [num2]          :Divides a number by another number");
-	printf("\nsubtract     [num1] [num2]          :Subtracts a number from the other");
+	printf("\nclear                               :Clears the screen of all text ");
 	printf("\nsettings     [username/color]       :Lets you switch the username and color");
+	printf("\ninfo                                :Shows you CPU and Memory information");
 	printf("\nYou can also  use the shell as a calculator");
 	printf("\n\n");
 	return 1;
@@ -110,18 +135,7 @@ int exit() {
 }
 // Clear Screen command
 int clear() {
-	if (strcmp(args[1], "all") == 0) {
-		terminal_clear();
-	}
-	else {
-		if (isNumber(args[1]) == 0 || str_to_int(args[1]) >= 25) {
-			printf("\nPlease use either all or a number 0 - 24");
-			return 1;
-		}
-		for (int i = 25; i > str_to_int(args[1]); i--) {
-			clearRow(i);
-		}
-	}
+	terminal_clear();
 	return 1;
 }
 //Invalid command
@@ -143,38 +157,38 @@ int setusername() {
 int calculator() {
 	printf("\n");
 	if (sizeof(args < 3)) {
-		int num1 = str_to_int(args[0]);
-		int num2 = str_to_int(args[2]);
+		int num1 = atoi(args[0]);
+		int num2 = atoi(args[2]);
 		if (strcmp(args[1], "+") == 0) {
-			printf(int_to_string(num1 + num2));
+			printf("%d", (num1 + num2));
 		}
 		else if (strcmp(args[1], "-") == 0) {
 			if (num1 < num2) {
 				printf("-");
-				printf(int_to_string(num2 - num1));
+				printf("%d", (num1 - num2));
 			}
 			else {
-				printf(int_to_string(num1 - num2));
+				printf("%d", (num1 - num2));
 			}
 		}
 		else if (strcmp(args[1], "*") == 0) {
-			printf(int_to_string(num1 * num2));
+			printf("%d", (num1 * num2));
 		}
 		else if (strcmp(args[1], "/") == 0) {
 			if (args[0] == 0 || args[2] == 0) {
 				printf("Don't Divide with Zero");
 				return 1;
 			}
-			printf(int_to_string(num1 / num2));
+			printf("%d", (num1 / num2));
 		}
 		else if (strcmp(args[1], "^") == 0) {
-			int args0 = str_to_int(args[0]);
+			int args0 = atoi(args[0]);
 			int temp = 1;
 			
-			for (int i = 0; i < str_to_int(args[2]); i++) {
+			for (int i = 0; i < atoi(args[2]); i++) {
 				temp = temp * args0;
 			}
-			printf(int_to_string(temp));
+			printf("%d", temp);
 		}
 		else {
 			printf("Only enter like [number1] [+, -, /, *, ^] [number2]");
@@ -225,17 +239,17 @@ int settings() {
 //Main shell loop
 int shell() {
 	int status;
-	for (int i = 0; i == 5; i++) {
-		if (i == str_to_int(args[1])) {
+	for (int i = 0; i < 4; i++) {
+		if (i == atoi(args[1])) {
 			break;
 		}
-		else if (str_to_int(args[1]) > 5) {
+		else if (atoi(args[1]) > 3) {
 			printf("\nToo high of a shell number\n");
-			invalid("");
+			return 1;
 		}
 		else if (i == 4) {
 			printf("\nYou did not enter a number!!!\n");
-			invalid("");
+			return 1;
 		}
 		
 	}
@@ -244,12 +258,12 @@ int shell() {
 	}
 	else {
 		terminal_clear();
-		shell_level = str_to_int(args[1]);
+		shell_level = atoi(args[1]);
 	}
 	
 	do {
 		char* ch = (char*)malloc(200, 0, 0);
-		printf("\nNAME OF OS: ");
+		printf("\nPLP OS: ");
 		printf(username);
 		printf(" (");
 		printf(int_to_string(shell_level));

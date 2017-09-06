@@ -9,9 +9,11 @@
 extern "C" {
 #endif
 
-int printf(const char* __restrict, ...);
+int printf(const char* format, ...);
 int putchar(int);
 int puts(const char*);
+unsigned int atoi(char* buf);
+void itoa(char* buf, int base, int d);
 
 #ifdef __cplusplus
 }

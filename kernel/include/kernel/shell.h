@@ -3,6 +3,7 @@
 
 extern int shell_level;
 int executeCommand(char* ch1);
+int shell();
 
 
 #endif
