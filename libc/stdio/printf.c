@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <string.h>
+#include <kernel/vga.h>
 #define EOF (-1)
 
 unsigned int atoi (char *buf) {
@@ -17,7 +18,6 @@ void itoa (char *buf, int base, int d) {
 	char *p = buf;
 	char *p1, *p2;
        	unsigned long ud = d;
-	uint64_t uud = d;
        	int divisor = 10;
        	/* If %d is specified and D is minus, put `-' in the head. */
        	if (base == 'd' && d < 0) {
@@ -25,14 +25,18 @@ void itoa (char *buf, int base, int d) {
         	buf++;
            	ud = -d;
        	}
-       	else if (base == 'x')
+       	else if (base == 'x' || base == 'X')
        	 	divisor = 16;
      
        	/* Divide UD by DIVISOR until UD == 0. */
        	do {
         	int remainder = ud % divisor;
-     
-        	*p++ = (remainder < 10) ? remainder + '0' : remainder + 'a' - 10;
+     		if (base == 'X'){
+			*p++ = (remainder < 10) ? remainder + '0' : remainder + 'A' - 10;
+		}
+		else {
+        		*p++ = (remainder < 10) ? remainder + '0' : remainder + 'a' - 10;
+		}
         }
        	while (ud /= divisor);
      
@@ -135,6 +139,27 @@ int printf(const char* restrict format, ...) {
 				return -1;
 			}
 			written += len;
+		} else if (*format == 'X') {
+			format++;
+			int val = va_arg(parameters, int);
+			char buf[100];
+			itoa(buf, 'X', val);
+			size_t len = strlen(buf);
+			if (!print(buf, len)) {
+				return -1;
+			}
+			written += len;
+		} else if (*format == 'f') {
+			format++;
+			int val = va_arg(parameters, int);
+			char buf[100];
+			itoa(buf, 'd', val);
+			char buf2[100];
+			size_t len = strlen(buf);
+			if (!print(buf, len)) {
+				return -1;
+			}
+			written += len;
 		} else {
 			format = format_begun_at;
 			size_t len = strlen(format);
@@ -147,7 +172,6 @@ int printf(const char* restrict format, ...) {
 			format += len;
 		}
 	}
- 
 	va_end(parameters);
 	return written;
 }

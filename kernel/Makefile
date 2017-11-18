@@ -2,7 +2,7 @@ DEFAULT_HOST!=../default-host.sh
 HOST?=DEFAULT_HOST
 HOSTARCH!=../target-triplet-to-arch.sh $(HOST)
 
-CFLAGS?=-O2 -g
+CFLAGS?=-O2 -g -S
 CPPFLAGS?=
 LDFLAGS?=
 LIBS?=
@@ -30,6 +30,11 @@ LIBS:=$(LIBS) $(KERNEL_ARCH_LIBS)
 KERNEL_OBJS=\
 $(KERNEL_ARCH_OBJS) \
 kernel/kernel.o \
+drivers/pit.o \
+drivers/cursor.o \
+drivers/keyboard.o \
+drivers/tty.o \
+drivers/shell.o \
 
 OBJS=\
 $(ARCHDIR)/boot/crti.o \
@@ -50,11 +55,11 @@ $(ARCHDIR)/boot/crtn.o \
 .PHONY: all clean install install-headers install-kernel
 .SUFFIXES: .o .c .S
 
-all: myos.kernel
+all: plpos.kernel
 
-myos.kernel: $(OBJS) $(ARCHDIR)/boot/linker.ld
+plpos.kernel: $(OBJS) $(ARCHDIR)/boot/linker.ld
 	$(CC) -T $(ARCHDIR)/boot/linker.ld -o $@ $(CFLAGS) $(LINK_LIST)
-	grub-file --is-x86-multiboot myos.kernel
+	grub-file --is-x86-multiboot plpos.kernel
 
 $(ARCHDIR)/boot/crtbegin.o $(ARCHDIR)/boot/crtend.o:
 	OBJ=`$(CC) $(CFLAGS) $(LDFLAGS) -print-file-name=$(@F)` && cp "$$OBJ" $@
@@ -66,7 +71,7 @@ $(ARCHDIR)/boot/crtbegin.o $(ARCHDIR)/boot/crtend.o:
 	$(CC) -MD -c $< -o $@ $(CFLAGS) $(CPPFLAGS)
 
 clean:
-	rm -f myos.kernel
+	rm -f plpos.kernel
 	rm -f $(OBJS) *.o */*.o */*/*.o
 	rm -f $(OBJS:.o=.d) *.d */*.d */*/*.d
 
@@ -76,8 +81,8 @@ install-headers:
 	mkdir -p $(DESTDIR)$(INCLUDEDIR)
 	cp -R --preserve=timestamps include/. $(DESTDIR)$(INCLUDEDIR)/.
 
-install-kernel: myos.kernel
+install-kernel: plpos.kernel
 	mkdir -p $(DESTDIR)$(BOOTDIR)
-	cp myos.kernel $(DESTDIR)$(BOOTDIR)
+	cp plpos.kernel $(DESTDIR)$(BOOTDIR)
 
 -include $(OBJS:.o=.d)

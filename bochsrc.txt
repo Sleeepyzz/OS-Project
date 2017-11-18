@@ -1,9 +1,10 @@
 display_library: x, options="gui_debug" # use GTK debugger gui
 
-ata0-slave: type=cdrom, path=myos.iso, status=inserted
+ata0-slave: type=cdrom, path=plpos.iso, status=inserted
 boot: cdrom
 
 cpu: count=1, ips=50000000, reset_on_triple_fault=0
+memory: guest=256, host=256
 
 log: bochsout.txt
 

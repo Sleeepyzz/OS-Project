@@ -1,4 +1,4 @@
-#ifdef ARCH_I386_PIT_H
+#ifndef ARCH_I386_PIT_H
 #define ARCH_I386_PIT_H
 
 void timer_wait(int ticks);

@@ -1,8 +1,7 @@
-#ifdef ARCH_I386_KEYBOARD_H
+#ifndef ARCH_I386_KEYBOARD_H
 #define ARCH_I386_KEYBOARD_H
 
-extern uint32_t total_mem;
-extern void keyboard_install();
+extern void keyboard_init();
 extern char* readStr();
 
 #endif

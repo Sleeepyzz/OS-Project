@@ -38,8 +38,6 @@ string/memcpy.o \
 string/memmove.o \
 string/memset.o \
 string/strlen.o \
-stdlib/malloc.o \
-string/strtoint.o \
 string/strstr.o \
 string/strtok.o \
 string/strspn.o \
@@ -48,6 +46,7 @@ string/strchr.o \
 string/strcpy.o \
 string/strcmp.o \
 string/isNumber.o \
+assert/assert.o \
 
 
 HOSTEDOBJS=\

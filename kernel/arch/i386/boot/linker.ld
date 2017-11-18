@@ -1,39 +1,34 @@
-ENTRY(_start)
+ENTRY(_loader)
+OUTPUT_FORMAT(elf32-i386)
 
-/* Tell where the various sections of the object files will be put in the final
-   kernel image. */
 SECTIONS
 {
-	/* Begin putting sections at 1 MiB, a conventional place for kernels to be
-	   loaded at by the bootloader. */
-	. = 1M;
-
-	.text BLOCK(4K) : ALIGN(4K)
+	
+	. = 0x00100000;
+	
+	.setup : ALIGN(0x1000)
 	{
 		*(.multiboot)
+		*(.setup)
+	}
+	. += 0xC0000000;
+	start = .;
+	.text : AT(ADDR(.text) - 0xC0000000)
+	{
 		*(.text)
 	}
-
-	/* Read-only data. */
-	.rodata BLOCK(4K) : ALIGN(4K)
+	.rodata : AT(ADDR(.rodata) - 0xC0000000)
 	{
 		*(.rodata)
 	}
-
-	/* Read-write data (initialized) */
-	.data BLOCK(4K) : ALIGN(4K)
+	.data : AT(ADDR(.data) - 0xC0000000)
 	{
 		*(.data)
 	}
-
-	/* Read-write data (uninitialized) and stack */
-	.bss BLOCK(4K) : ALIGN(4K)
+	.bss : AT(ADDR(.bss) - 0xC0000000)
 	{
-		*(COMMON)
 		*(.bss)
+		*(.stack)
 	}
-	kernel_end = .;
-
-	/* The compiler may produce other sections, put them in the proper place in
-	   in this file, if you'd like to include them in the final kernel. */
+	end = .;
 }
