@@ -18,5 +18,4 @@ Features:
 - PIT
 
 License:
-All my code is under the GPL 3 license unless otherwise specified.
-So use it as much as you want as long as you give me credit.
+All my code is under the GNU General Public License unless said otherwise in that file.
