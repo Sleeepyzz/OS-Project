@@ -1,9 +1,29 @@
+/*
+gdt.c Setup GDT
+
+Copyright (C) 2017 Ryken Thompson
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 #include <string.h>
 #include <stdint.h>
 #include <kernel/gdt.h>
 
-/* This will be a function in start.asm. We use this to properly
-*  reload the new segment registers */
+/* flush() is located in lgdt.s 
+It flushes the new GDT*/
 extern void flush();
  
 struct gdt_entry  gdt[3];
@@ -31,20 +51,14 @@ void gdt_install()
     gdt_p.base  = (uint32_t) &gdt;
 
     /* set null descriptor */
-   
     gdt_set_gate(0, 0, 0, 0, 0);
    
     /* set code descriptor */
-   
     gdt_set_gate(1, 0, 0xFFFFFFFF, 0x9A, 0xCF);
    
     /* set data descriptor */
-   
     gdt_set_gate(2, 0, 0xFFFFFFFF, 0x92, 0xCF);
 
-	
-
     /* install the GDT */
-   
     flush();
 }

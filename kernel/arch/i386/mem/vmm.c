@@ -1,3 +1,23 @@
+/*
+vmm.c The kernel heap manager
+
+Copyright (C) 2017 Ryken Thompson
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -80,7 +100,7 @@ void insert_after(block_t* new, block_t* b) {
 /* The init vmm function called from the kernel */
 void init_vmm() {
 	/*The head starts at 0xC0800000 and ends at 0xC0C00000
-	It can expand up to 0xC1400000
+	It can expand up to 0xC1000000
 	the addr that the head starts at needs to be mapped already*/
 	head = (block_t *)0xC0800000;
 	curr_heap_end = 0xC0800000 + INITIAL_HEAP_SIZE;
@@ -89,22 +109,30 @@ void init_vmm() {
 	head->prev = NULL;
 	head->next = NULL;
 	tail = head;
-	printf("HEAP addr: %x", &head);
 }
 
 block_t *find_block(size_t size) {
-	/*Using a first fit algoritim
+	/*Using a best fit algoritim
 	We start from the head and search the blocks for one that
-	is free and is at least the requested size */
+	is free and is at least the requested size 
+	Check the size difference and see if it should be the result*/
 	block_t *current = head;
+	block_t *result= NULL;
+	int best_difference = NULL;
 	while (current != NULL) {
 		if (current->size >= size && current->is_free == 1) {
-			return current;
+			if (best_difference == NULL) {
+				best_difference = current->size - size;
+				result = current;
+			}
+			if (current->size - size < best_difference) {
+				result = current;
+			}
 		}
 		current = current->next;
 	}
-	/*We didn't find any blocks*/
-	return NULL;
+	/*Will return NULL if no blocks were found*/
+	return result;
 }
 
 void split(block_t *b, size_t s) {
@@ -120,17 +148,6 @@ void split(block_t *b, size_t s) {
 	insert_after(new, b);
 }
 
-
-/*This is slow and probably shouldn't be used*/
-void update_tail() {
-	block_t *current = head;
-	while (current) {
-		current = current->next;
-		if (current == NULL) {
-			tail = current->prev;
-		}
-	}
-}
 
 void merge(block_t *block) {
 	/*Check if block can be merged with next*/
@@ -153,14 +170,20 @@ void expand(size_t size) {
 	block_t *new_block;
 	curr_heap_end += (new_block->size + BLOCK_SIZE);
 	if (curr_heap_end >= MAX_HEAP_SIZE) {
-		curr_heap_end -= (new_block->size + BLOCK_SIZE);
-		return;
+		int pages = size / 0x1000;
+		if (pages == 0) pages = 1;
+		for (int i = 0; i < pages; i++) {
+			uint32_t phys_addr = alloc_frame();
+			assert(phys_addr);
+			uint32_t virt_addr = (uint32_t)tail->data + tail->size + i * 0x1000;
+			map_page(virt_addr, phys_addr, 3);
+		}
 	}
 	/*Place the block at the end of the tail
 	Set its size to the requested size
 	And mark it as free*/
 	new_block = (block_t *)tail->data + tail->size;
-	new_block->size = size;
+	new_block->size = 0x1000;
 	new_block->is_free = 1;
 	insert_last(new_block);
 }
@@ -229,23 +252,18 @@ void kfree(void* ptr) {
 	merge(block);
 }
 
-void *calloc(int number, size_t size) {
+void *kcalloc(int number, size_t size) {
 	void *ptr = kmalloc(number * size);
 	assert(ptr);
 	memset(ptr, 0, (number * size));
 	return ptr;
 }
 
-void *realloc(void *ptr, size_t new_size) {
-	printf("REALLOC");
-	printf("\nPointer: %x", ptr);
-	printheap();
+void *krealloc(void *ptr, size_t new_size) {
 	if (!is_valid_ptr(ptr)) return 0;
-	printf("REALLOC 0");
 	block_t *block = get_block(ptr);
 	size_t s = align4(new_size);
 	if (block->size == new_size){
-		printf("HI 0");
 		return ptr;
 	}
 	else if (new_size < block->size) {
@@ -255,7 +273,6 @@ void *realloc(void *ptr, size_t new_size) {
 	}
 	else {
 		if (block->next && block->next->is_free && block->size + BLOCK_SIZE + block->next->size >= s) {
-			printf("HI");
 			block->is_free = 1;
 			merge(block);
 			if (block->size - s >= BLOCK_SIZE + 4) {
@@ -265,7 +282,6 @@ void *realloc(void *ptr, size_t new_size) {
 			return block->data;
 		}
 		else {
-			printf("HI 2");
 			void *new_ptr = kmalloc(s);
 			block_t *new = get_block(new_ptr);
 			copy_block(block, new);

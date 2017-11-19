@@ -1,11 +1,29 @@
-# Declare constants used for the multiboot header
+/*
+boot.s The boot file
+
+Copyright (C) 2017 Ryken Thompson
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+*/
+
 .set ALIGN,		1<<0
 .set MEMINFO,	1<<1
 .set MAGIC,		0x1BADB002
 .set FLAGS,		ALIGN | MEMINFO
 .set CHECKSUM,	-(MAGIC + FLAGS)
 
-# Stuff I need for the multiboot header.
 .section .multiboot
 	.align 4
 	.long MAGIC
@@ -13,13 +31,11 @@
 	.long CHECKSUM
 	.align 0x1000
 
-# stuff for a stack
 .section .stack, "aw", @nobits
 	stackBottom:
 		.skip 0x4000
 	stackTop:
 
-# Constants needed to translate physical addresses to virtual addresses
 .set KERNEL_VIRTUAL_BASE,	0xC0000000
 .set KERNEL_PAGE_NUM,		(KERNEL_VIRTUAL_BASE >> 22);
 
@@ -28,13 +44,9 @@
 	.align 0x1000
 	.global BootPageDirectory
 	BootPageDirectory:
-		# The first page directory entry, attributes read/write, present
 		.long 0x00000083
-		# Empty PDEs
 		.fill (KERNEL_PAGE_NUM - 1), 4, 0x00000000
-		# The PDE for the kernel's virtual address, attributes read/write, present
 		.long 0x00000083
-		# Empty PDEs
 		.fill (1024 - KERNEL_PAGE_NUM - 1), 4, 0x00000000
 # Declare the setup function that GRUB will call first.
 .section .setup, "ax", @progbits

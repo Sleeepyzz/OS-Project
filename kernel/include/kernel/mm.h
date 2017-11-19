@@ -80,8 +80,8 @@ typedef struct block {
 /*Prototypes*/
 void *kmalloc(size_t size);
 void kfree(void* ptr);
-void *calloc(int number, size_t size);
-void *realloc(void *ptr, size_t new_size);
+void *kcalloc(int number, size_t size);
+void *krealloc(void *ptr, size_t new_size);
 void init_vmm();
 void printheap();
 
