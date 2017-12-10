@@ -16,7 +16,7 @@ Features
 - Keyboard
 - Textmode interface with printf
 - PIT
-
+![alt text](https://raw.githubusercontent.com/wasd424/OS-Project/master/Screenshot%20from%202017-12-09%2017-13-57.png)
 
 ---------------------------------------------------------------------------------------------------------------------------------
 COMPILING
