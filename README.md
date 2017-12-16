@@ -1,5 +1,5 @@
 # OS-Project
-This operating system was written to help me learn more about how computers work and what operating systems do. It can be helpful to others looking to start os development. The code is simple and easy to understand for most people new to operating system development. Read the COMPILING section for information about compiling and modifying the code. For anyone looking to get started on writing a memory manager, my operating system contains a working recursive paging setup and a kernel heap(in development). This operating system does not boot on real hardware, but does work on x86 emulators. The shell provides basic commands such as listing the heap, changing virtual terminals, and listing cpu and memory info. This code is based off the Meaty Skeleton operating system on http://wiki.osdev.org/Meaty_Skeleton.
+This operating system was written to help me learn more about how computers work and what operating systems do. It can be helpful to others looking to start os development. The code is simple and easy to understand for most people new to operating system development. Read the COMPILING section for information about compiling and modifying the code. For anyone looking to get started on writing a memory manager, my operating system contains a working recursive paging setup and a kernel heap(in development). This operating system does not boot on real hardware, but does work on x86 emulators. The shell provides basic commands such as listing the heap, changing virtual terminals, and listing cpu and memory info. This code is based off the Meaty Skeleton operating system on http://wiki.osdev.org/Meaty_Skeleton. I am currently working towards SMP support.
 
 
 ---------------------------------------------------------------------------------------------------------------------------------
@@ -15,7 +15,7 @@ Features
 - Kernel Heap
 - Keyboard
 - Textmode interface with printf
-- PIT
+- PIC
 ![alt text](https://raw.githubusercontent.com/wasd424/OS-Project/master/Screenshot%20from%202017-12-09%2017-13-57.png)
 
 ---------------------------------------------------------------------------------------------------------------------------------
